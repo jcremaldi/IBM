@@ -8,7 +8,6 @@ Created on Wed Jan 22 08:58:19 2020
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
-import numpy as np
 from sklearn import preprocessing
 from sklearn import model_selection
 
@@ -32,7 +31,8 @@ def data_prep(df):
     df['effective_date'] = pd.to_datetime(df['effective_date'])
     df['dayofweek'] = df['effective_date'].dt.dayofweek
     df['weekend'] = df['dayofweek'].apply(lambda x: 1 if (x>3)  else 0)
-    df['Gender'].replace(to_replace=['male','female'], value=[0,1],inplace=True)
+    df['Gender'].replace('male',0,inplace=True)
+    df['Gender'].replace('female',1,inplace=True)
     
     #one hot encode the education level, why do they drop 'Master or Above'?
     temp = df[['Principal','terms','age','Gender','weekend']].copy()
@@ -41,7 +41,7 @@ def data_prep(df):
     temp.drop(['Master or Above','terms'], axis = 1,inplace=True)
     #fix a spelling error
     temp.rename(columns = {'Bechalor':'Bachelor'}, inplace = True)
-
+    print(temp.columns)
     # standardize the other numerical variables
     ss_col_names = ['Principal','age']
     ss_col = temp[ss_col_names].copy()
@@ -96,7 +96,7 @@ mean_acc_svm = np.zeros((dep-1))
 temp_acc_svm = 0
 temp_max_svm = ''
 for k in kern:
-    svm_clf = svm.SVC(kernel=str(k))
+    svm_clf = svm.SVC(kernel=str(k),gamma='scale')
     acc = strat_k_folds(svm_clf, X, y)
     if acc > temp_acc_svm:
         temp_acc_svm = acc
